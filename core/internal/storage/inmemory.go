@@ -643,6 +643,7 @@ func (module *InMemoryStorage) deleteTopic(request *protocol.StorageRequest, req
 		return
 	}
 
+	clusterMap.consumerLock.RLock()
 	// Work backwards - remove the topic from consumer groups first
 	for _, consumerMap := range clusterMap.consumer {
 		consumerMap.lock.Lock()
@@ -650,6 +651,7 @@ func (module *InMemoryStorage) deleteTopic(request *protocol.StorageRequest, req
 		delete(consumerMap.topics, request.Topic)
 		consumerMap.lock.Unlock()
 	}
+	clusterMap.consumerLock.RUnlock()
 
 	// Now remove the topic from the broker list
 	clusterMap.brokerLock.Lock()
