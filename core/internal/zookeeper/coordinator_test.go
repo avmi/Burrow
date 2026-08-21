@@ -64,6 +64,9 @@ func TestCoordinator_StartStop(t *testing.T) {
 	coordinator.connectFunc = func(servers []string, timeout time.Duration, logger *zap.Logger) (protocol.ZookeeperClient, <-chan zk.Event, error) {
 		return &mockClient, eventChan, nil
 	}
+	mockClient.On("Exists", "/test").Return(true, &zk.Stat{}, nil)
+	mockClient.On("Exists", "/test/path").Return(true, &zk.Stat{}, nil)
+	mockClient.On("Exists", "/test/path/burrow").Return(false, &zk.Stat{}, nil)
 
 	mockClient.On("Create", "/test", []byte{}, int32(0), zk.WorldACL(zk.PermAll)).Return("", zk.ErrNodeExists)
 	mockClient.On("Create", "/test/path", []byte{}, int32(0), zk.WorldACL(zk.PermAll)).Return("", zk.ErrNodeExists)
